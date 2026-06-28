@@ -2,7 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Register User
+// ================= REGISTER USER =================
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
+    // Create user
     const user = await User.create({
       name,
       email,
@@ -55,13 +55,18 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Login User
+// ================= LOGIN USER =================
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("\n========== LOGIN REQUEST ==========");
+    console.log("Request Body:", req.body);
+
     // Check required fields
     if (!email || !password) {
+      console.log("❌ Missing email or password");
+
       return res.status(400).json({
         success: false,
         message: "Email and password are required",
@@ -71,7 +76,11 @@ const loginUser = async (req, res) => {
     // Find user
     const user = await User.findOne({ email });
 
+    console.log("User Found:", user);
+
     if (!user) {
+      console.log("❌ User not found");
+
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
@@ -81,12 +90,18 @@ const loginUser = async (req, res) => {
     // Compare password
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
+    console.log("Password Match:", isPasswordMatch);
+
     if (!isPasswordMatch) {
+      console.log("❌ Password incorrect");
+
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
       });
     }
+
+    console.log("✅ Login Successful");
 
     // Generate JWT Token
     const token = jwt.sign(
@@ -109,7 +124,7 @@ const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("❌ Login Error:", error);
 
     res.status(500).json({
       success: false,
