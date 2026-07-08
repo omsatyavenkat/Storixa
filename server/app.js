@@ -1,3 +1,4 @@
+const fileRoutes = require("./routes/fileRoutes");
 const express = require("express");
 const cors = require("cors");
 
@@ -17,5 +18,5 @@ app.get("/", (req, res) => {
 
 // Authentication Routes
 app.use("/api/auth", authRoutes);
-
+app.use("/api/files", fileRoutes);
 module.exports = app;

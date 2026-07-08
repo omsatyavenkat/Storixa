@@ -1,35 +1,47 @@
 import { HardDrive, Files, Upload, Users } from "lucide-react";
 
-function StatsCards() {
-  const stats = [
+function StatsCards({ stats }) {
+  // Default values if stats haven't loaded yet
+  const safeStats = stats || {
+    storageUsed: 0,
+    totalFiles: 0,
+    totalUploads: 0,
+  };
+
+  const storageMB = (
+    safeStats.storageUsed /
+    (1024 * 1024)
+  ).toFixed(2);
+
+  const cards = [
     {
       title: "Storage Used",
-      value: "0 MB",
+      value: `${storageMB} MB`,
       icon: <HardDrive size={28} />,
     },
     {
       title: "Files",
-      value: "0",
+      value: safeStats.totalFiles,
       icon: <Files size={28} />,
     },
     {
       title: "Uploads",
-      value: "0",
+      value: safeStats.totalUploads,
       icon: <Upload size={28} />,
     },
     {
-      title: "Shared",
-      value: "0",
+      title: "Storage Limit",
+      value: "5 GB",
       icon: <Users size={28} />,
     },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
-      {stats.map((card, index) => (
+      {cards.map((card, index) => (
         <div
           key={index}
-          className="bg-slate-900 rounded-2xl p-6 shadow-lg border border-slate-800 hover:border-cyan-400 transition"
+          className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow"
         >
           <div className="flex justify-between items-center">
             <div>

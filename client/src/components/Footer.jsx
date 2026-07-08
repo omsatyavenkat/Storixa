@@ -1,7 +1,8 @@
+import { Link } from "react-router-dom";
+
 function Footer() {
   return (
     <footer className="bg-slate-900 border-t border-slate-800 mt-20">
-
       <div className="max-w-7xl mx-auto px-8 py-12">
 
         <div className="grid md:grid-cols-3 gap-10">
@@ -26,18 +27,33 @@ function Footer() {
               Quick Links
             </h3>
 
-            <ul className="space-y-3 text-gray-400">
+            <ul className="space-y-3">
 
-              <li className="hover:text-cyan-400 cursor-pointer transition">
-                Home
+              <li>
+                <Link
+                  to="/"
+                  className="text-gray-400 hover:text-cyan-400 transition"
+                >
+                  Home
+                </Link>
               </li>
 
-              <li className="hover:text-cyan-400 cursor-pointer transition">
-                Login
+              <li>
+                <Link
+                  to="/login"
+                  className="text-gray-400 hover:text-cyan-400 transition"
+                >
+                  Login
+                </Link>
               </li>
 
-              <li className="hover:text-cyan-400 cursor-pointer transition">
-                Register
+              <li>
+                <Link
+                  to="/register"
+                  className="text-gray-400 hover:text-cyan-400 transition"
+                >
+                  Register
+                </Link>
               </li>
 
             </ul>
@@ -66,11 +82,10 @@ function Footer() {
         <hr className="border-slate-700 my-8" />
 
         <p className="text-center text-gray-500">
-          © 2026 Storixa. All rights reserved.
+          © 2026 Storixa. Designed & Developed by <span className="text-cyan-400">Om Satya</span>
         </p>
 
       </div>
-
     </footer>
   );
 }

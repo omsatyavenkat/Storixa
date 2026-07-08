@@ -1,4 +1,18 @@
+import { useNavigate } from "react-router-dom";
+
 function Hero() {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      navigate("/dashboard");
+    } else {
+      navigate("/register");
+    }
+  };
+
   return (
     <section className="flex flex-col items-center justify-center text-center mt-24 px-6">
 
@@ -13,11 +27,17 @@ function Hero() {
 
       <div className="flex gap-6 mt-12">
 
-        <button className="bg-cyan-500 hover:bg-cyan-600 px-8 py-4 rounded-xl font-semibold transition duration-300">
+        <button
+          onClick={handleGetStarted}
+          className="bg-cyan-500 hover:bg-cyan-600 px-8 py-4 rounded-xl font-semibold transition duration-300"
+        >
           Get Started
         </button>
 
-        <button className="border border-cyan-400 px-8 py-4 rounded-xl hover:bg-cyan-400 hover:text-black transition duration-300">
+        <button
+          onClick={() => navigate("/login")}
+          className="border border-cyan-400 px-8 py-4 rounded-xl hover:bg-cyan-400 hover:text-black transition duration-300"
+        >
           Login
         </button>
 
