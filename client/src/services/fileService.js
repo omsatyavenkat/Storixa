@@ -21,15 +21,39 @@ export const getFiles = async () => {
 
   return response.data;
 };
+
 // Download File
-export const downloadFile = (id) => {
-  window.open(
-    `http://localhost:5000/api/files/download/${id}`,
-    "_blank"
-  );
+export const downloadFile = async (id) => {
+  try {
+    const response = await api.get(`/files/download/${id}`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+
+    const link = document.createElement("a");
+
+    link.href = url;
+
+    link.download = "download";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error(error);
+    alert("Download Failed");
+  }
 };
+
 // Delete File
 export const deleteFile = async (id) => {
   const response = await api.delete(`/files/${id}`);
+
   return response.data;
 };
