@@ -124,13 +124,14 @@ const deleteFile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+  console.error("UPLOAD ERROR:", error);
 
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
-  }
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+    stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
+  });
+}
 };
 
 module.exports = {
