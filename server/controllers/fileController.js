@@ -1,7 +1,8 @@
 const File = require("../models/File");
 const fs = require("fs");
+const path = require("path");
 
-// Upload File
+// ================= Upload File =================
 const uploadFile = async (req, res) => {
   try {
     if (!req.file) {
@@ -16,9 +17,10 @@ const uploadFile = async (req, res) => {
       originalName: req.file.originalname,
       fileType: req.file.mimetype,
       fileSize: req.file.size,
-      filePath: req.file.path,
 
-      // Logged-in user's ID
+      // Store a consistent relative path
+      filePath: `uploads/${req.file.filename}`,
+
       uploadedBy: req.user.id,
     });
 
@@ -29,16 +31,16 @@ const uploadFile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("UPLOAD ERROR:", error);
 
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
 
-// Get Only Logged-in User Files
+// ================= Get Files =================
 const getFiles = async (req, res) => {
   try {
     const files = await File.find({
@@ -61,43 +63,62 @@ const getFiles = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("GET FILES ERROR:", error);
 
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
 
-// Download User File
+// ================= Download File =================
 const downloadFile = async (req, res) => {
+  console.log("\n========== DOWNLOAD REQUEST ==========");
+  console.log("Requested File ID:", req.params.id);
+  console.log("Logged In User:", req.user);
+
   try {
     const file = await File.findOne({
       _id: req.params.id,
       uploadedBy: req.user.id,
     });
 
+    console.log("Database File:", file);
+
     if (!file) {
       return res.status(404).json({
         success: false,
-        message: "File not found",
+        message: "File not found in database",
       });
     }
 
-    res.download(file.filePath, file.originalName);
+    // Absolute path to the file
+    const fullPath = path.join(__dirname, "..", file.filePath);
+
+    console.log("Resolved Path:", fullPath);
+    console.log("File Exists:", fs.existsSync(fullPath));
+
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({
+        success: false,
+        message: "Physical file not found",
+      });
+    }
+
+    return res.download(fullPath, file.originalName);
 
   } catch (error) {
-    console.error(error);
+    console.error("DOWNLOAD ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
 
-// Delete User File
+// ================= Delete File =================
 const deleteFile = async (req, res) => {
   try {
     const file = await File.findOne({
@@ -112,8 +133,10 @@ const deleteFile = async (req, res) => {
       });
     }
 
-    if (fs.existsSync(file.filePath)) {
-      fs.unlinkSync(file.filePath);
+    const fullPath = path.join(__dirname, "..", file.filePath);
+
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
     }
 
     await File.findByIdAndDelete(file._id);
@@ -124,14 +147,13 @@ const deleteFile = async (req, res) => {
     });
 
   } catch (error) {
-  console.error("UPLOAD ERROR:", error);
+    console.error("DELETE ERROR:", error);
 
-  return res.status(500).json({
-    success: false,
-    message: error.message,
-    stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
-  });
-}
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 module.exports = {
