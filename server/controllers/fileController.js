@@ -17,10 +17,7 @@ const uploadFile = async (req, res) => {
       originalName: req.file.originalname,
       fileType: req.file.mimetype,
       fileSize: req.file.size,
-
-      // Store a consistent relative path
       filePath: `uploads/${req.file.filename}`,
-
       uploadedBy: req.user.id,
     });
 
@@ -29,7 +26,6 @@ const uploadFile = async (req, res) => {
       message: "File uploaded successfully",
       file: newFile,
     });
-
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
 
@@ -61,7 +57,6 @@ const getFiles = async (req, res) => {
         storageUsed: totalStorage,
       },
     });
-
   } catch (error) {
     console.error("GET FILES ERROR:", error);
 
@@ -74,17 +69,11 @@ const getFiles = async (req, res) => {
 
 // ================= Download File =================
 const downloadFile = async (req, res) => {
-  console.log("\n========== DOWNLOAD REQUEST ==========");
-  console.log("Requested File ID:", req.params.id);
-  console.log("Logged In User:", req.user);
-
   try {
     const file = await File.findOne({
       _id: req.params.id,
       uploadedBy: req.user.id,
     });
-
-    console.log("Database File:", file);
 
     if (!file) {
       return res.status(404).json({
@@ -93,11 +82,16 @@ const downloadFile = async (req, res) => {
       });
     }
 
-    // Absolute path to the file
-    const fullPath = path.join(__dirname, "..", file.filePath);
+    // Build absolute path
+    const fullPath = path.join(__dirname, "..", "uploads", file.fileName);
 
-    console.log("Resolved Path:", fullPath);
-    console.log("File Exists:", fs.existsSync(fullPath));
+    console.log("========== DOWNLOAD DEBUG ==========");
+    console.log("__dirname:", __dirname);
+    console.log("fileName:", file.fileName);
+    console.log("filePath:", file.filePath);
+    console.log("fullPath:", fullPath);
+    console.log("Exists:", fs.existsSync(fullPath));
+    console.log("====================================");
 
     if (!fs.existsSync(fullPath)) {
       return res.status(404).json({
@@ -107,11 +101,10 @@ const downloadFile = async (req, res) => {
     }
 
     return res.download(fullPath, file.originalName);
-
   } catch (error) {
     console.error("DOWNLOAD ERROR:", error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -133,7 +126,7 @@ const deleteFile = async (req, res) => {
       });
     }
 
-    const fullPath = path.join(__dirname, "..", file.filePath);
+    const fullPath = path.join(__dirname, "..", "uploads", file.fileName);
 
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
@@ -145,7 +138,6 @@ const deleteFile = async (req, res) => {
       success: true,
       message: "File deleted successfully",
     });
-
   } catch (error) {
     console.error("DELETE ERROR:", error);
 
